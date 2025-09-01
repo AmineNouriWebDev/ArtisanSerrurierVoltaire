@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Artisan Serrurier Voltaire — Dépannage & Métallerie à Paris 11</title>
+  <meta name="description" content="Serrurier à Paris 11 — Dépannage 7j/7, serrurerie & métallerie, reproduction de clés. Eric, artisan de confiance depuis 2019. Appelez le 07 49 61 58 26." />
+  <meta name="theme-color" content="#0F0F0F" />
+  <link rel="preconnect" href="https://unpkg.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+
+  <!-- Tailwind (CDN build for rapid prototyping). For production, generate a purged build. -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            metal: '#2C3E50',
+            gold: '#B8860B',
+            bluenight: '#1A1A2E',
+            copper: '#B87333',
+            silver: '#C0C0C0',
+            deep: '#0F0F0F',
+            safety: '#DC143C'
+          },
+          boxShadow: {
+            soft: '0 10px 30px rgba(0,0,0,0.25)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Critical styles */
+    html { scroll-behavior: smooth; }
+    .btn-metal {
+      @apply inline-flex items-center justify-center rounded-2xl px-5 py-3 font-semibold text-deep bg-gold hover:bg-yellow-400 transition shadow-soft focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-300;
+    }
+    .btn-urgent { @apply bg-safety text-white hover:brightness-110; }
+    .section { @apply relative py-16 md:py-24; }
+    .maxw { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
+    .glass {
+      backdrop-filter: blur(8px);
+      background: linear-gradient( to bottom right, rgba(255,255,255,0.08), rgba(255,255,255,0.02) );
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    /* 3D canvas keeps ratio */
+    #hero3d { width: 100%; height: clamp(520px, 80vh, 900px); display:block; }
+    /* 3D cards */
+    .card3d {
+      transform-style: preserve-3d;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .card3d:hover { transform: translateY(-4px) rotateX(3deg) rotateY(-3deg); box-shadow: 0 20px 40px rgba(0,0,0,0.25); }
+    /* Testimonials */
+    .stars::before { content:"★★★★★"; letter-spacing: 2px; background: linear-gradient(90deg,#FFD700,#fff); -webkit-background-clip:text; color: transparent; }
+    /* Accessibility helpers */
+    .sr-only-focusable:focus { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip: auto; }
+  </style>
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Artisan Serrurier Voltaire — Dépannage & Métallerie à Paris 11" />
+  <meta property="og:description" content="Dépannage 7j/7, reproduction de clés, métallerie. Eric — votre serrurier de confiance depuis 2019." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="fr_FR" />
+  
+  <!-- JSON-LD LocalBusiness -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Locksmith",
+    "name":"Artisan Serrurier Voltaire",
+    "image":"",
+    "telephone":"+33749615826",
+    "address":{
+      "@type":"PostalAddress",
+      "streetAddress":"196 boulevard Voltaire",
+      "postalCode":"75011",
+      "addressLocality":"Paris",
+      "addressCountry":"FR"
+    },
+    "areaServed":"Paris 11e",
+    "openingHoursSpecification":[
+      {"@type":"OpeningHoursSpecification","dayOfWeek":["Monday"],"opens":"08:30","closes":"19:00"},
+      {"@type":"OpeningHoursSpecification","dayOfWeek":["Tuesday"],"opens":"08:30","closes":"19:00"},
+      {"@type":"OpeningHoursSpecification","dayOfWeek":["Wednesday"],"opens":"08:30","closes":"19:00"},
+      {"@type":"OpeningHoursSpecification","dayOfWeek":["Thursday"],"opens":"08:30","closes":"19:00"},
+      {"@type":"OpeningHoursSpecification","dayOfWeek":["Friday"],"opens":"08:30","closes":"15:00"},
+      {"@type":"OpeningHoursSpecification","dayOfWeek":["Sunday"],"opens":"09:00","closes":"19:00"}
+    ],
+    "url":"https://example.com"
+  }
+  </script>
+</head>
+
+<body class="bg-deep text-silver selection:bg-gold selection:text-deep">
+  <a class="sr-only sr-only-focusable" href="#contenu">Aller au contenu</a>
+
+  <!-- Header -->
+  <header class="fixed top-0 inset-x-0 z-50 backdrop-blur border-b border-white/10 bg-deep/70">
+    <nav class="maxw flex items-center justify-between h-16">
+      <div class="flex items-center gap-3">
+        <svg width="34" height="34" viewBox="0 0 64 64" aria-hidden="true" class="shrink-0">
+          <defs>
+            <linearGradient id="g" x1="0" x2="1"><stop offset="0%" stop-color="#FFD700"/><stop offset="100%" stop-color="#B8860B"/></linearGradient>
+          </defs>
+          <path d="M26 8a16 16 0 1 1 0 32 16 16 0 0 1 0-32zm22 36-6 6-4-4-4 4-4-4-6 6 6 6 6-6 4 4 12-12-4-4z" fill="url(#g)"/>
+        </svg>
+        <span class="font-bold text-white text-lg tracking-wide">Artisan Serrurier Voltaire</span>
+      </div>
+      <div class="hidden md:flex items-center gap-6 text-sm">
+        <a href="#services" class="hover:text-white">Services</a>
+        <a href="#expertise" class="hover:text-white">À propos</a>
+        <a href="#temoignages" class="hover:text-white">Témoignages</a>
+        <a href="#contact" class="hover:text-white">Contact</a>
+        <a href="#urgence" class="btn-metal btn-urgent" aria-label="Appeler en urgence">Urgence 07 49 61 58 26</a>
+      </div>
+      <a href="tel:+33749615826" class="md:hidden btn-metal btn-urgent text-xs py-2">Urgence</a>
+    </nav>
+  </header>
+
+  <!-- Hero -->
+  <main id="contenu" class="pt-16">
+    <section class="section relative overflow-hidden bg-gradient-to-b from-bluenight to-deep">
+      <div class="maxw relative z-10 text-center">
+        <h1 class="text-4xl md:text-6xl font-black text-white tracking-tight">Votre serrurier de confiance à Paris 11<sup class="align-super text-base">e</sup> depuis 2019</h1>
+        <p class="mt-4 text-lg md:text-xl text-silver/90">Dépannage 7j/7 • Serrurerie & Métallerie • Reproduction de clés</p>
+        <div class="mt-6 flex items-center justify-center gap-3 flex-wrap">
+          <a href="tel:+33749615826" class="btn-metal btn-urgent" id="urgence">Dépannage d'urgence • 07 49 61 58 26</a>
+          <a href="#services" class="btn-metal" aria-label="Voir les services">Voir les services</a>
+        </div>
+      </div>
+      <canvas id="hero3d" class="absolute inset-0 -z-0"></canvas>
+      <!-- subtle bottom gradient fade -->
+      <div class="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-deep"></div>
+    </section>
+
+    <!-- Services -->
+    <section id="services" class="section bg-deep">
+      <div class="maxw">
+        <h2 class="text-3xl md:text-4xl font-bold text-white">Services</h2>
+        <p class="mt-2 text-silver/80">Transparence, rapidité et précision — au juste prix.</p>
+        <div class="mt-10 grid md:grid-cols-3 gap-6">
+          <!-- Card 1 -->
+          <article class="card3d glass p-6 rounded-2xl" aria-labelledby="srv1">
+            <div class="flex items-center justify-between">
+              <h3 id="srv1" class="text-xl font-semibold text-white">Dépannage d'urgence 7j/7</h3>
+              <span class="stars" aria-label="5 étoiles"></span>
+            </div>
+            <p class="mt-3 text-sm text-silver/80">Ouverture de porte, clé cassée, serrure bloquée — intervention rapide à Paris 11e.</p>
+            <div class="mt-5 flex items-center gap-3 text-sm text-silver/80">
+              <span class="inline-block w-2 h-2 rounded-full bg-safety"></span>
+              <span>Temps moyen d'intervention &lt; 30 min*</span>
+            </div>
+            <a href="tel:+33749615826" class="mt-6 btn-metal btn-urgent w-full">Appeler maintenant</a>
+          </article>
+          <!-- Card 2 -->
+          <article class="card3d glass p-6 rounded-2xl" aria-labelledby="srv2">
+            <h3 id="srv2" class="text-xl font-semibold text-white">Serrurerie & Métallerie</h3>
+            <p class="mt-3 text-sm text-silver/80">Pose et réparation de serrures, blindages, cylindres — conseils personnalisés.</p>
+            <ul class="mt-4 space-y-1 text-silver/70 text-sm list-disc list-inside">
+              <li>Multipoints, cylindres européens</li>
+              <li>Blindage de porte, paumelles, pênes</li>
+              <li>Matériaux : acier, laiton, inox</li>
+            </ul>
+          </article>
+          <!-- Card 3 -->
+          <article class="card3d glass p-6 rounded-2xl" aria-labelledby="srv3">
+            <h3 id="srv3" class="text-xl font-semibold text-white">Reproduction de clés</h3>
+            <p class="mt-3 text-sm text-silver/80">Toutes marques et modèles — taillage précis, contrôle qualité systématique.</p>
+            <div class="mt-4 text-xs text-silver/60">Sur place – Devis gratuit</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Expertise / Story -->
+    <section id="expertise" class="section bg-gradient-to-b from-deep to-bluenight">
+      <div class="maxw">
+        <h2 class="text-3xl md:text-4xl font-bold text-white">Savoir‑faire & Expertise</h2>
+        <div class="mt-8 grid md:grid-cols-2 gap-10 items-start">
+          <div>
+            <ol class="relative border-s border-white/10 ps-6 space-y-6">
+              <li>
+                <div class="absolute -start-1.5 mt-1.5 w-3 h-3 rounded-full bg-gold"></div>
+                <h3 class="text-white font-semibold">2019 — Les débuts</h3>
+                <p class="text-silver/80 text-sm">Eric ouvre l'atelier au 196 boulevard Voltaire (75011) et bâtit sa réputation sur l'honnêteté et le travail bien fait.</p>
+              </li>
+              <li>
+                <div class="absolute -start-1.5 mt-1.5 w-3 h-3 rounded-full bg-gold"></div>
+                <h3 class="text-white font-semibold">Aujourd'hui — Réactivité & précision</h3>
+                <p class="text-silver/80 text-sm">Interventions rapides, diagnostic transparent, gestes sûrs. Matériaux nobles et outillage de pointe.</p>
+              </li>
+            </ol>
+            <div class="mt-8 grid grid-cols-3 gap-4 text-center">
+              <div class="glass rounded-xl p-4"><div class="text-2xl font-bold text-white">5/5</div><div class="text-xs text-silver/70">Note moyenne</div></div>
+              <div class="glass rounded-xl p-4"><div class="text-2xl font-bold text-white">7j/7</div><div class="text-xs text-silver/70">Dépannage</div></div>
+              <div class="glass rounded-xl p-4"><div class="text-2xl font-bold text-white">2019</div><div class="text-xs text-silver/70">Depuis</div></div>
+            </div>
+          </div>
+          <div class="glass rounded-2xl p-6">
+            <h3 class="text-white font-semibold">Matériaux</h3>
+            <p class="text-silver/80 text-sm">Acier brossé, laiton patiné, chrome brillant. Robustesse et durabilité, sans compromis.</p>
+            <div class="mt-4 grid grid-cols-3 gap-3 text-center text-xs">
+              <div class="rounded-xl p-3 bg-white/5">Acier</div>
+              <div class="rounded-xl p-3 bg-white/5">Laiton</div>
+              <div class="rounded-xl p-3 bg-white/5">Inox</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section id="temoignages" class="section bg-deep">
+      <div class="maxw">
+        <h2 class="text-3xl md:text-4xl font-bold text-white">Ils nous font confiance</h2>
+        <div id="carousel" class="mt-8 overflow-hidden relative">
+          <div class="flex gap-6 will-change-transform" id="carouselTrack" aria-live="polite">
+            <!-- Slide 1 -->
+            <figure class="min-w-[80%] md:min-w-[45%] lg:min-w-[32%] glass p-6 rounded-2xl">
+              <blockquote class="text-silver">« Artisan honnête et très sympa… toujours de bon conseil, rassurant et à très bon prix. »</blockquote>
+              <figcaption class="mt-4 text-sm text-silver/70">— d.rizzonelli, 11/07/2025 • <span class="stars align-middle"></span></figcaption>
+            </figure>
+            <!-- Slide 2 -->
+            <figure class="min-w-[80%] md:min-w-[45%] lg:min-w-[32%] glass p-6 rounded-2xl">
+              <blockquote class="text-silver">« Excellent service, rapide et prix abordable. »</blockquote>
+              <figcaption class="mt-4 text-sm text-silver/70">— edouard.debrousse, 07/11/2024 • <span class="stars align-middle"></span></figcaption>
+            </figure>
+            <!-- Slide 3 -->
+            <figure class="min-w-[80%] md:min-w-[45%] lg:min-w-[32%] glass p-6 rounded-2xl">
+              <blockquote class="text-silver">« Artisan serrurier souriant, passionné, efficace et rapide… Je vous le recommande. »</blockquote>
+              <figcaption class="mt-4 text-sm text-silver/70">— carole.rouah, 10/08/2024 • <span class="stars align-middle"></span></figcaption>
+            </figure>
+          </div>
+          <div class="absolute inset-y-1/2 -translate-y-1/2 left-0 right-0 flex justify-between px-2 md:px-4 pointer-events-none">
+            <button id="prev" class="pointer-events-auto glass rounded-full p-2" aria-label="Précédent">◀</button>
+            <button id="next" class="pointer-events-auto glass rounded-full p-2" aria-label="Suivant">▶</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="section bg-gradient-to-b from-bluenight to-deep">
+      <div class="maxw grid md:grid-cols-2 gap-10 items-start">
+        <div>
+          <h2 class="text-3xl md:text-4xl font-bold text-white">Contact & Localisation</h2>
+          <div class="mt-6 space-y-3 text-silver">
+            <p><strong class="text-white">Adresse :</strong> 196 boulevard Voltaire, 75011 Paris</p>
+            <p><strong class="text-white">Téléphone :</strong> <a class="underline hover:text-white" href="tel:+33749615826">07 49 61 58 26</a></p>
+            <p><strong class="text-white">Horaires :</strong></p>
+            <ul class="grid grid-cols-2 gap-1 text-sm text-silver/80">
+              <li>Lun–Jeu : 08h30–19h00</li>
+              <li>Ven : 08h30–15h00</li>
+              <li>Sam : Fermé</li>
+              <li>Dim : 09h00–19h00</li>
+            </ul>
+          </div>
+          <form class="mt-8 grid gap-4 glass p-6 rounded-2xl" aria-labelledby="formTitle" onsubmit="event.preventDefault(); this.reset(); alert('Merci ! Votre message a bien été envoyé.');">
+            <h3 id="formTitle" class="text-white font-semibold">Demande de devis</h3>
+            <label class="text-sm">Nom<input required class="mt-1 w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2" type="text" name="nom" autocomplete="name"/></label>
+            <label class="text-sm">Téléphone<input required class="mt-1 w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2" type="tel" name="tel" autocomplete="tel"/></label>
+            <label class="text-sm">Message<textarea required class="mt-1 w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2" rows="4" name="msg"></textarea></label>
+            <button class="btn-metal">Envoyer</button>
+          </form>
+        </div>
+        <div>
+          <div class="glass rounded-2xl p-4">
+            <h3 class="text-white font-semibold">Paris 11ᵉ — Voltaire</h3>
+            <p class="text-silver/80 text-sm">Zone d'intervention rapide autour du boulevard Voltaire.</p>
+            <!-- Simple accessible SVG map placeholder -->
+            <svg viewBox="0 0 600 360" role="img" aria-label="Carte stylisée de Paris avec repère sur le 11e" class="mt-4 w-full h-auto rounded-xl bg-white/5">
+              <rect x="0" y="0" width="600" height="360" fill="transparent" stroke="rgba(255,255,255,0.15)" />
+              <g>
+                <circle cx="360" cy="150" r="90" fill="none" stroke="rgba(255,255,255,0.15)" />
+                <circle cx="360" cy="150" r="130" fill="none" stroke="rgba(255,255,255,0.08)" />
+                <circle cx="360" cy="150" r="50" fill="none" stroke="rgba(255,255,255,0.1)" />
+              </g>
+              <!-- Marker -->
+              <g transform="translate(410,140)">
+                <path d="M0,-22 C12,-22 22,-12 22,0 C22,16 0,36 0,36 C0,36 -22,16 -22,0 C-22,-12 -12,-22 0,-22 Z" fill="#DC143C" opacity="0.9" />
+                <circle cx="0" cy="0" r="6" fill="#FFD700" />
+              </g>
+              <text x="430" y="145" fill="#fff" font-size="12" opacity="0.9">Voltaire, 11e</text>
+            </svg>
+          </div>
+          <a href="tel:+33749615826" class="mt-4 inline-flex w-full btn-metal btn-urgent">Appeler maintenant</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/10 py-10 bg-deep text-silver">
+    <div class="maxw grid md:grid-cols-3 gap-6 items-start">
+      <div>
+        <div class="flex items-center gap-3">
+          <svg width="28" height="28" viewBox="0 0 64 64" aria-hidden="true"><path d="M26 8a16 16 0 1 1 0 32 16 16 0 0 1 0-32zm22 36-6 6-4-4-4 4-4-4-6 6 6 6 6-6 4 4 12-12-4-4z" fill="#B8860B"/></svg>
+          <span class="font-semibold text-white">Artisan Serrurier Voltaire</span>
+        </div>
+        <p class="mt-3 text-sm">196 boulevard Voltaire, 75011 Paris</p>
+        <p class="text-sm">Tél : <a class="underline" href="tel:+33749615826">07 49 61 58 26</a></p>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold">Plan du site</h4>
+        <ul class="mt-2 text-sm space-y-1">
+          <li><a class="hover:text-white" href="#services">Services</a></li>
+          <li><a class="hover:text-white" href="#expertise">À propos</a></li>
+          <li><a class="hover:text-white" href="#temoignages">Témoignages</a></li>
+          <li><a class="hover:text-white" href="#contact">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold">Mentions légales</h4>
+        <p class="mt-2 text-sm">SIRET, assurances, qualifications — disponibles sur demande.</p>
+        <p class="text-xs text-silver/70">© <span id="year"></span> Artisan Serrurier Voltaire. Tous droits réservés.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- GSAP -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js" defer></script>
+  <!-- Three.js (module) -->
+  <script type="module" defer>
+    import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+    import { OrbitControls } from 'https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+
+    const $ = (s,doc=document)=>doc.querySelector(s);
+    const heroCanvas = $('#hero3d');
+    const state = { ready:false, speed: 0.2, exploded:false };
+
+    // Lazy-init 3D when hero is visible
+    const io = new IntersectionObserver((entries)=>{
+      if(entries[0].isIntersecting && !state.ready){ init3D(); state.ready = true; io.disconnect(); }
+    }, { rootMargin: '0px 0px -40% 0px', threshold: 0.1 });
+    io.observe(heroCanvas);
+
+    function metalMaterial({color=0xb0b0b0, roughness=0.3, metalness=0.9}={}){
+      return new THREE.MeshStandardMaterial({ color, roughness, metalness });
+    }
+
+    function buildLockScene(scene){
+      const group = new THREE.Group();
+
+      // Backplate
+      const plate = new THREE.Mesh(new THREE.BoxGeometry(3.4, 5.2, 0.2), metalMaterial({color:0x2C3E50}));
+      plate.position.set(0,0,-0.6);
+      group.add(plate);
+
+      // Cylinder housing
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,1.2, 48), metalMaterial({color:0xC0C0C0}));
+      body.rotation.x = Math.PI/2;
+      group.add(body);
+
+      // Keyway ring
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(1.05,0.15,16,48), metalMaterial({color:0xB8860B}));
+      group.add(ring);
+
+      // Pins (goupilles)
+      const pins = new THREE.Group();
+      const pinMat = metalMaterial({color:0xFFD700, roughness:0.2});
+      for(let i=0;i<6;i++){
+        const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,1.2,16), pinMat);
+        pin.position.set(-0.8 + i*0.32, 0.6, 0);
+        pins.add(pin);
+      }
+      group.add(pins);
+
+      // Key (simplified)
+      const key = new THREE.Group();
+      const shaft = new THREE.Mesh(new THREE.BoxGeometry(2.2,0.15,0.2), metalMaterial({color:0xC0C0C0}));
+      shaft.position.x = -0.2;
+      key.add(shaft);
+      const head = new THREE.Mesh(new THREE.TorusGeometry(0.35,0.1,16,24), metalMaterial({color:0xB8860B}));
+      head.position.set(-1.3,0,0);
+      key.add(head);
+      for(let i=0;i<3;i++){
+        const tooth = new THREE.Mesh(new THREE.BoxGeometry(0.25,0.18,0.2), metalMaterial({color:0xC0C0C0}));
+        tooth.position.set(-0.3 + i*0.35, -0.15 - i*0.05, 0);
+        key.add(tooth);
+      }
+      key.position.set(2.2,0,0);
+      group.add(key);
+
+      // Background gears (stylized with torus + boxes as teeth)
+      function gear(radius=2.2, tube=0.22, teeth=14, color=0x2C3E50){
+        const g = new THREE.Group();
+        const core = new THREE.Mesh(new THREE.TorusGeometry(radius, tube, 16, 64), metalMaterial({color}));
+        g.add(core);
+        const toothGeom = new THREE.BoxGeometry(0.12, 0.5, 0.3);
+        for(let i=0;i<teeth;i++){
+          const t = new THREE.Mesh(toothGeom, metalMaterial({color}));
+          const a = i*(Math.PI*2/teeth);
+          t.position.set(Math.cos(a)*(radius+0.3), Math.sin(a)*(radius+0.3), 0);
+          t.lookAt(0,0,0);
+          g.add(t);
+        }
+        return g;
+      }
+      const gearLeft = gear(2.4,0.18,16,0x1A1A2E); gearLeft.position.set(-4, -1, -1.5);
+      const gearRight = gear(1.6,0.16,12,0x0F0F0F); gearRight.position.set(4, 1.2, -1.2);
+      scene.add(gearLeft, gearRight);
+
+      // Metallic particles
+      const particles = (()=>{
+        const count = 900;
+        const geo = new THREE.BufferGeometry();
+        const pos = new Float32Array(count*3);
+        for(let i=0;i<count;i++){
+          pos[i*3] = (Math.random()-0.5)*16;
+          pos[i*3+1] = (Math.random()-0.5)*10;
+          pos[i*3+2] = - (Math.random()*4+1);
+        }
+        geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+        const mat = new THREE.PointsMaterial({ size: 0.03, color: 0xC0C0C0 });
+        return new THREE.Points(geo, mat);
+      })();
+      scene.add(particles);
+
+      // Save references for animation
+      group.userData = { pins, key, gearLeft, gearRight };
+      return group;
+    }
+
+    let renderer, scene, camera, controls, group;
+
+    function init3D(){
+      renderer = new THREE.WebGLRenderer({ canvas: heroCanvas, antialias:true, alpha:true, powerPreference:'high-performance' });
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 1.8));
+      renderer.setSize(heroCanvas.clientWidth, heroCanvas.clientHeight, false);
+
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(38, heroCanvas.clientWidth/heroCanvas.clientHeight, 0.1, 100);
+      camera.position.set(0, 0.8, 9);
+
+      const amb = new THREE.AmbientLight(0xffffff, 0.7); scene.add(amb);
+      const dir = new THREE.DirectionalLight(0xffffff, 1.2); dir.position.set(2,3,5); scene.add(dir);
+
+      group = buildLockScene(scene);
+      scene.add(group);
+
+      controls = new OrbitControls(camera, heroCanvas);
+      controls.enablePan = false; controls.enableZoom = false; controls.autoRotate = true; controls.autoRotateSpeed = 0.6;
+
+      // Interaction: explode/assemble
+      heroCanvas.addEventListener('click', ()=>{
+        const d = group.userData;
+        state.exploded = !state.exploded;
+        const t = state.exploded ? 1 : 0;
+        gsap.to(d.pins.children.map(m=>m.position), { y: (i)=> state.exploded ? 1.2 + Math.random()*0.6 : 0.6, duration: 0.8, ease:'power3.out' });
+        gsap.to(d.key.position, { x: state.exploded ? 3.2 : 2.2, duration:0.8, ease:'power3.out' });
+        gsap.to(group.rotation, { z: state.exploded ? 0.15 : 0, duration:0.8, ease:'power3.out' });
+      });
+
+      // Pointer: move key towards cursor for a subtle physics feel
+      const pointer = new THREE.Vector2();
+      heroCanvas.addEventListener('pointermove', (e)=>{
+        const rect = heroCanvas.getBoundingClientRect();
+        pointer.x = ((e.clientX-rect.left)/rect.width)*2-1;
+        pointer.y = -((e.clientY-rect.top)/rect.height)*2+1;
+      });
+
+      const clock = new THREE.Clock();
+      const renderLoop = ()=>{
+        const t = clock.getElapsedTime();
+        const d = group.userData;
+        // smooth camera parallax with pointer
+        camera.position.x += (pointer.x*1.2 - camera.position.x)*0.03;
+        camera.position.y += (pointer.y*0.6 + 0.8 - camera.position.y)*0.03;
+        camera.lookAt(0,0,0);
+
+        // gears rotation speed scales with scroll
+        const scroll = Math.min(1, Math.max(0, window.scrollY / (window.innerHeight*1.2)));
+        d.gearLeft.rotation.z -= 0.015 + scroll*0.06;
+        d.gearRight.rotation.z += 0.02 + scroll*0.08;
+
+        // key float & shine
+        d.key.rotation.y = Math.sin(t*0.8)*0.3;
+        d.key.position.y = Math.sin(t*1.2)*0.08;
+
+        controls.update();
+        renderer.render(scene, camera);
+        requestAnimationFrame(renderLoop);
+      };
+      renderLoop();
+
+      // Resize
+      addEventListener('resize', ()=>{
+        const w = heroCanvas.clientWidth, h = heroCanvas.clientHeight;
+        renderer.setSize(w,h,false);
+        camera.aspect = w/h; camera.updateProjectionMatrix();
+      });
+    }
+
+    // Testimonials carousel controls
+    document.addEventListener('DOMContentLoaded', ()=>{
+      $('#year').textContent = new Date().getFullYear();
+      const track = $('#carouselTrack');
+      const slides = Array.from(track.children);
+      let index = 0;
+      function update(){
+        const slideW = slides[0].getBoundingClientRect().width + 24; // gap approximation
+        gsap.to(track, { x: -index*slideW, duration: 0.6, ease:'power3.out' });
+      }
+      $('#next').addEventListener('click', ()=>{ index = (index+1)%slides.length; update(); });
+      $('#prev').addEventListener('click', ()=>{ index = (index-1+slides.length)%slides.length; update(); });
+      // auto-advance
+      setInterval(()=>{ index=(index+1)%slides.length; update(); }, 4500);
+    });
+  </script>
+
+  <!-- Service Worker (basic offline cache of this page) -->
+  <script>
+    if('serviceWorker' in navigator){
+      window.addEventListener('load', ()=>{
+        const swCode = `self.addEventListener('install', e=>{e.waitUntil(caches.open('sv-v1').then(c=>c.addAll(['/'])))});
+self.addEventListener('fetch', e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))})`;
+        const blob = new Blob([swCode], {type:'text/javascript'});
+        const url = URL.createObjectURL(blob);
+        navigator.serviceWorker.register(url);
+      });
+    }
+  </script>
+</body>
+</html>
