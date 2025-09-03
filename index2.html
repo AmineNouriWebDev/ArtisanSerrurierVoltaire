@@ -1,909 +1,1110 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Artisan Serrurier Voltaire — Expérience 3D Immersive</title>
-    <meta name="description" content="Serrurier à Paris 11 — Dépannage 7j/7, serrurerie & métallerie, reproduction de clés. Eric, votre serrurier de confiance depuis 2019.">
-    <meta name="theme-color" content="#0F0F0F">
-    
+    <meta
+      name="description"
+      content="Serrurier à Paris 11 — Dépannage 7j/7, serrurerie & métallerie, reproduction de clés. Eric, votre serrurier de confiance depuis 2019."
+    />
+    <meta name="theme-color" content="#0F0F0F" />
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- GSAP pour les animations -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    
+
     <!-- Three.js avec version compatible -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
 
     <style>
-        :root {
-            --metal: #2c3e50;
-            --gold: #b8860b;
-            --bluenight: #1a1a2e;
-            --deep: #0f0f0f;
-            --safety: #dc143c;
+      :root {
+        --metal: #2c3e50;
+        --gold: #b8860b;
+        --bluenight: #1a1a2e;
+        --deep: #0f0f0f;
+        --safety: #dc143c;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", system-ui, Arial, sans-serif;
+        background: linear-gradient(180deg, var(--bluenight), var(--deep));
+        color: #c0c0c0;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      header {
+        backdrop-filter: blur(8px);
+        background: rgba(15, 15, 15, 0.55);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      }
+
+      .btn-metal {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        padding: 10px 16px;
+        font-weight: 700;
+        background: linear-gradient(180deg, #b8860b33, #b8860b);
+        color: #0f0f0f;
+        text-decoration: none;
+        transition: all 0.3s ease;
+      }
+
+      .btn-metal:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(184, 134, 11, 0.3);
+      }
+
+      .btn-urgent {
+        background: linear-gradient(180deg, #dc143c, #a40f2a);
+        color: white;
+      }
+
+      .btn-urgent:hover {
+        box-shadow: 0 4px 12px rgba(220, 20, 60, 0.3);
+      }
+
+      #hero-canvas {
+        width: 100%;
+        height: clamp(520px, 80vh, 900px);
+        display: block;
+      }
+
+      .glass {
+        backdrop-filter: blur(6px);
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.03),
+          rgba(255, 255, 255, 0.01)
+        );
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        transition: all 0.3s ease;
+      }
+
+      .glass:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      }
+
+      .loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: linear-gradient(
+          180deg,
+          rgba(5, 7, 10, 0.88),
+          rgba(0, 0, 0, 0.4)
+        );
+        z-index: 9999;
+        color: var(--gold);
+        transition: opacity 0.8s ease-out;
+      }
+
+      .loader.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .progress-bar {
+        width: 240px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        overflow: hidden;
+        margin-top: 12px;
+      }
+
+      .progress {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--gold), #ffd700);
+        transition: width 0.4s ease;
+      }
+
+      .hint {
+        position: fixed;
+        left: 18px;
+        bottom: 18px;
+        z-index: 90;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+      }
+
+      .hint.hidden {
+        transform: translateY(100px);
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .hint-card {
+        padding: 12px 14px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        color: #c0c0c0;
+        font-size: 13px;
+      }
+
+      .sound-toggle {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        z-index: 90;
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      .pulse {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.12);
         }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        70% {
+          box-shadow: 0 0 0 12px rgba(255, 215, 0, 0);
         }
-        
-        body {
-            font-family: 'Inter', system-ui, Arial, sans-serif;
-            background: linear-gradient(180deg, var(--bluenight), var(--deep));
-            color: #c0c0c0;
-            min-height: 100vh;
-            overflow-x: hidden;
+        100% {
+          box-shadow: 0 0 0 0 rgba(255, 215, 0, 0);
         }
-        
-        header {
-            backdrop-filter: blur(8px);
-            background: rgba(15, 15, 15, 0.55);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-        }
-        
-        .btn-metal {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-            padding: 10px 16px;
-            font-weight: 700;
-            background: linear-gradient(180deg, #b8860b33, #b8860b);
-            color: #0f0f0f;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-metal:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(184, 134, 11, 0.3);
-        }
-        
-        .btn-urgent {
-            background: linear-gradient(180deg, #dc143c, #a40f2a);
-            color: white;
-        }
-        
-        .btn-urgent:hover {
-            box-shadow: 0 4px 12px rgba(220, 20, 60, 0.3);
-        }
-        
+      }
+
+      .key-interaction {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: rgba(184, 134, 11, 0.2);
+        border: 2px solid var(--gold);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 10;
+      }
+
+      .key-interaction.visible {
+        opacity: 1;
+      }
+
+      .key-interaction svg {
+        width: 30px;
+        height: 30px;
+        fill: var(--gold);
+      }
+
+      @media (max-width: 768px) {
         #hero-canvas {
-            width: 100%;
-            height: clamp(520px, 80vh, 900px);
-            display: block;
+          height: 60vh;
         }
-        
-        .glass {
-            backdrop-filter: blur(6px);
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            transition: all 0.3s ease;
-        }
-        
-        .glass:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-        }
-        
-        .loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            background: linear-gradient(180deg, rgba(5, 7, 10, 0.88), rgba(0, 0, 0, 0.4));
-            z-index: 9999;
-            color: var(--gold);
-            transition: opacity 0.8s ease-out;
-        }
-        
-        .loader.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        
-        .progress-bar {
-            width: 240px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
-            overflow: hidden;
-            margin-top: 12px;
-        }
-        
-        .progress {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--gold), #ffd700);
-            transition: width 0.4s ease;
-        }
-        
+
         .hint {
-            position: fixed;
-            left: 18px;
-            bottom: 18px;
-            z-index: 90;
-            transition: transform 0.3s ease, opacity 0.3s ease;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 90%;
+          max-width: 320px;
         }
-        
-        .hint.hidden {
-            transform: translateY(100px);
-            opacity: 0;
-            pointer-events: none;
-        }
-        
+
         .hint-card {
-            padding: 12px 14px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            color: #c0c0c0;
-            font-size: 13px;
+          font-size: 12px;
         }
-        
-        .sound-toggle {
-            position: fixed;
-            right: 18px;
-            bottom: 18px;
-            z-index: 90;
-        }
-        
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-        
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.12);
-            }
-            70% {
-                box-shadow: 0 0 0 12px rgba(255, 215, 0, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(255, 215, 0, 0);
-            }
-        }
-        
-        .key-interaction {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: rgba(184, 134, 11, 0.2);
-            border: 2px solid var(--gold);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 10;
-        }
-        
-        .key-interaction.visible {
-            opacity: 1;
-        }
-        
-        .key-interaction svg {
-            width: 30px;
-            height: 30px;
-            fill: var(--gold);
-        }
-        
-        @media (max-width: 768px) {
-            #hero-canvas {
-                height: 60vh;
-            }
-            
-            .hint {
-                left: 50%;
-                transform: translateX(-50%);
-                width: 90%;
-                max-width: 320px;
-            }
-            
-            .hint-card {
-                font-size: 12px;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <a class="sr-only" href="#main">Aller au contenu</a>
 
     <!-- Header -->
     <header class="fixed top-0 left-0 right-0 z-50">
-        <nav class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <svg width="36" height="36" viewBox="0 0 64 64" aria-hidden>
-                    <path fill="#B8860B" d="M26 8a16 16 0 1 1 0 32 16 16 0 0 1 0-32z" />
-                </svg>
-                <div class="text-white font-bold">Artisan Serrurier Voltaire</div>
-            </div>
-            <div class="hidden md:flex items-center gap-4 text-sm">
-                <a href="#services" class="hover:text-gold transition-colors">Services</a>
-                <a href="#expertise" class="hover:text-gold transition-colors">À propos</a>
-                <a href="#temoignages" class="hover:text-gold transition-colors">Témoignages</a>
-                <a href="#contact" class="hover:text-gold transition-colors">Contact</a>
-                <a href="tel:+33749615826" class="btn-metal btn-urgent pulse">Urgence • 07 49 61 58 26</a>
-            </div>
-            <button class="md:hidden text-white">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 12H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M3 6H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            </button>
-        </nav>
+      <nav
+        class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between"
+      >
+        <div class="flex items-center gap-3">
+          <svg width="36" height="36" viewBox="0 0 64 64" aria-hidden>
+            <path fill="#B8860B" d="M26 8a16 16 0 1 1 0 32 16 16 0 0 1 0-32z" />
+          </svg>
+          <div class="text-white font-bold">Artisan Serrurier Voltaire</div>
+        </div>
+        <div class="hidden md:flex items-center gap-4 text-sm">
+          <a href="#services" class="hover:text-gold transition-colors"
+            >Services</a
+          >
+          <a href="#expertise" class="hover:text-gold transition-colors"
+            >À propos</a
+          >
+          <a href="#temoignages" class="hover:text-gold transition-colors"
+            >Témoignages</a
+          >
+          <a href="#contact" class="hover:text-gold transition-colors"
+            >Contact</a
+          >
+          <a href="tel:+33749615826" class="btn-metal btn-urgent pulse"
+            >Urgence • 07 49 61 58 26</a
+          >
+        </div>
+        <button class="md:hidden text-white">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M3 12H21"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+            <path
+              d="M3 6H21"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+            <path
+              d="M3 18H21"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+      </nav>
     </header>
 
     <!-- Loader -->
     <div id="loader" class="loader" role="status" aria-live="polite">
-        <div style="font-weight: 800; font-size: 18px">🔧 Chargement atelier...</div>
-        <div id="loaderMsg">Préparation des mécanismes</div>
-        <div class="progress-bar">
-            <div class="progress" id="progressBar"></div>
-        </div>
-        <div style="font-size: 12px; color: rgba(255, 255, 255, 0.6); margin-top: 12px;">
-            Si le chargement dépasse 4.5s, la page continue et vous pouvez interagir.
-        </div>
+      <div style="font-weight: 800; font-size: 18px">
+        🔧 Chargement atelier...
+      </div>
+      <div id="loaderMsg">Préparation des mécanismes</div>
+      <div class="progress-bar">
+        <div class="progress" id="progressBar"></div>
+      </div>
     </div>
 
     <!-- Key interaction hint -->
     <div class="key-interaction" id="keyHint">
-        <svg viewBox="0 0 24 24">
-            <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 5.5V7H9V5.5L3 7V9L5 9.5V15.5L3 16V18L5 18.5V22H7V18.5L9 18V15.5L15 17.5V18L13 18.5V22H15V18.5L21 17V15L19 15.5V9.5L21 9Z"/>
-        </svg>
+      <svg viewBox="0 0 24 24">
+        <path
+          d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 5.5V7H9V5.5L3 7V9L5 9.5V15.5L3 16V18L5 18.5V22H7V18.5L9 18V15.5L15 17.5V18L13 18.5V22H15V18.5L21 17V15L19 15.5V9.5L21 9Z"
+        />
+      </svg>
     </div>
 
     <!-- Onboarding hint -->
     <div id="hint" class="hint">
-        <div class="hint-card">
-            <div style="font-weight: 700">Mode d'emploi</div>
-            <ol style="margin-top: 6px; padding-left: 16px; line-height: 1.4">
-                <li>Déplace la souris — la clé suit</li>
-                <li>Approche la serrure — la clé s'aligne</li>
-                <li>Clique — démonter / remonter</li>
-                <li>Scrolle vers "Expertise" — voir la mécanique</li>
-            </ol>
-            <div style="text-align: right; margin-top: 8px">
-                <button id="dismissHint" class="btn-metal text-sm">Ok</button>
-            </div>
+      <div class="hint-card">
+        <div style="font-weight: 700">Mode d'emploi</div>
+        <ol style="margin-top: 6px; padding-left: 16px; line-height: 1.4">
+          <li>Déplace la souris — la clé suit</li>
+          <li>Approche la serrure — la clé s'aligne</li>
+          <li>Clique — démonter / remonter</li>
+          <li>Scrolle vers "Expertise" — voir la mécanique</li>
+        </ol>
+        <div style="text-align: right; margin-top: 8px">
+          <button id="dismissHint" class="btn-metal text-sm">Ok</button>
         </div>
+      </div>
     </div>
 
     <!-- Sound toggle -->
     <div class="sound-toggle">
-        <button id="soundBtn" class="btn-metal">Son : ON</button>
+      <button id="soundBtn" class="btn-metal">Son : ON</button>
     </div>
 
     <!-- Main -->
     <main id="main" class="pt-16">
-        <section class="relative overflow-hidden">
-            <div class="max-w-7xl mx-auto px-4 text-center z-10 relative" style="padding-top: 120px;">
-                <h1 class="text-4xl md:text-6xl font-extrabold text-white">Votre serrurier de confiance — Artisan Serrurier Voltaire</h1>
-                <p class="mt-3 text-silver/80">Dépannage 7j/7 • Serrurerie & Métallerie • Reproduction de clés</p>
-                <div class="mt-5 flex flex-col sm:flex-row justify-center gap-3">
-                    <a href="tel:+33749615826" class="btn-metal btn-urgent">Dépannage d'urgence • 07 49 61 58 26</a>
-                    <a href="#services" class="btn-metal">Voir les services</a>
-                </div>
+      <section class="relative overflow-hidden">
+        <div
+          class="max-w-7xl mx-auto px-4 text-center z-10 relative"
+          style="padding-top: 120px"
+        >
+          <h1 class="text-4xl md:text-6xl font-extrabold text-white">
+            Votre serrurier de confiance — Artisan Serrurier Voltaire
+          </h1>
+          <p class="mt-3 text-silver/80">
+            Dépannage 7j/7 • Serrurerie & Métallerie • Reproduction de clés
+          </p>
+          <div class="mt-5 flex flex-col sm:flex-row justify-center gap-3">
+            <a href="tel:+33749615826" class="btn-metal btn-urgent"
+              >Dépannage d'urgence • 07 49 61 58 26</a
+            >
+            <a href="#services" class="btn-metal">Voir les services</a>
+          </div>
+        </div>
+
+        <!-- 3D canvas -->
+        <canvas
+          id="hero-canvas"
+          aria-label="Serrure 3D interactive"
+          role="img"
+        ></canvas>
+        <div
+          class="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#0F0F0F]"
+        ></div>
+      </section>
+
+      <!-- Services -->
+      <section id="services" class="py-20">
+        <div class="max-w-7xl mx-auto px-4">
+          <h2 class="text-3xl md:text-4xl font-bold text-white">Services</h2>
+          <p class="mt-2 text-silver/80">
+            Transparence, rapidité et précision — au juste prix.
+          </p>
+          <div class="mt-10 grid md:grid-cols-3 gap-6">
+            <article class="glass p-6 rounded-2xl">
+              <div class="flex items-center justify-between">
+                <h3 class="text-xl font-semibold text-white">
+                  Dépannage d'urgence 7j/7
+                </h3>
+                <div class="text-xs text-silver/70">Intervention rapide</div>
+              </div>
+              <p class="mt-3 text-sm text-silver/80">
+                Ouverture de porte, clé cassée, serrure bloquée — intervention
+                rapide à Paris 11e.
+              </p>
+              <a
+                href="tel:+33749615826"
+                class="mt-6 btn-metal btn-urgent w-full inline-block text-center"
+                >Appeler maintenant</a
+              >
+            </article>
+            <article class="glass p-6 rounded-2xl">
+              <h3 class="text-xl font-semibold text-white">
+                Serrurerie & Métallerie
+              </h3>
+              <p class="mt-3 text-sm text-silver/80">
+                Pose et réparation de serrures, blindages, cylindres — conseils
+                personnalisés.
+              </p>
+            </article>
+            <article class="glass p-6 rounded-2xl">
+              <h3 class="text-xl font-semibold text-white">
+                Reproduction de clés
+              </h3>
+              <p class="mt-3 text-sm text-silver/80">
+                Toutes marques et modèles — taillage précis, contrôle qualité
+                systématique.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Expertise -->
+      <section id="expertise" class="py-24">
+        <div
+          class="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-8 items-start"
+        >
+          <div>
+            <h2 class="text-3xl font-bold text-white">
+              Storytelling — Le mécanisme expliqué
+            </h2>
+            <p class="mt-4 text-silver/80">
+              Scrollez pour voir la serrure se transformer : du cadenas compact
+              au cylindre haute sécurité, goupilles et mécanismes dévoilés pas à
+              pas.
+            </p>
+            <ul class="mt-6 text-sm text-silver/70 space-y-2">
+              <li>
+                2019 — Eric ouvre l'atelier au 196 boulevard Voltaire (75011)
+              </li>
+              <li>
+                Interventions rapides, diagnostic transparent et matériaux
+                nobles
+              </li>
+              <li>Taillage de clés, blindages et métallerie sur mesure</li>
+            </ul>
+          </div>
+          <div class="glass rounded-2xl p-6">
+            <h3 class="text-white font-semibold">Horaires</h3>
+            <ul class="mt-3 text-silver/80 text-sm">
+              <li>Lundi–Jeudi : 08h30–19h00</li>
+              <li>Vendredi : 08h30–15h00</li>
+              <li>Samedi : Fermé</li>
+              <li>Dimanche : 09h00–19h00</li>
+            </ul>
+            <div class="mt-4 text-xs text-silver/70">
+              Adresse : 196 boulevard Voltaire, 75011 Paris • Tél : 07 49 61 58
+              26
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Testimonials -->
+      <section id="temoignages" class="py-20">
+        <div class="max-w-7xl mx-auto px-4">
+          <h2 class="text-3xl font-bold text-white">Ils nous font confiance</h2>
+          <div class="mt-8 grid md:grid-cols-3 gap-6">
+            <div class="glass p-6 rounded-2xl">
+              "Artisan honnête et très sympa..." — d.rizzonelli (11/07/2025)
+            </div>
+            <div class="glass p-6 rounded-2xl">
+              "Excellent service, rapide et prix abordable" — edouard.debrousse
+              (07/11/2024)
+            </div>
+            <div class="glass p-6 rounded-2xl">
+              "Artisan serrurier souriant, passionné, efficace" — carole.rouah
+              (10/08/2024)
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact -->
+      <section id="contact" class="py-20">
+        <div class="max-w-7xl mx-auto px-4">
+          <h2 class="text-3xl font-bold text-white">Contact & Localisation</h2>
+          <div class="mt-6 grid md:grid-cols-2 gap-8 items-start">
+            <form class="glass p-6 rounded-2xl" id="contactForm">
+              <h3 class="text-white font-semibold">Demande de devis</h3>
+              <label class="block mt-3 text-sm"
+                >Nom
+                <input
+                  required
+                  class="mt-1 w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2"
+                  type="text"
+                  name="nom"
+                  autocomplete="name"
+                />
+              </label>
+              <label class="block mt-3 text-sm"
+                >Téléphone
+                <input
+                  required
+                  class="mt-1 w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2"
+                  type="tel"
+                  name="tel"
+                  autocomplete="tel"
+                />
+              </label>
+              <label class="block mt-3 text-sm"
+                >Message
+                <textarea
+                  required
+                  class="mt-1 w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2"
+                  rows="4"
+                  name="msg"
+                ></textarea>
+              </label>
+              <div class="mt-4 flex gap-3">
+                <button class="btn-metal">Envoyer</button>
+                <a class="btn-metal btn-urgent" href="tel:+33749615826"
+                  >Appeler</a
+                >
+              </div>
+            </form>
+            <div class="glass p-6 rounded-2xl">
+              <h3 class="text-white font-semibold">Zone d'intervention</h3>
+              <p class="text-silver/80 text-sm mb-4">
+                Paris 11ᵉ — Intervention rapide autour du boulevard Voltaire.
+              </p>
+
+              <!-- Conteneur pour la carte Leaflet -->
+              <div id="map" class="mt-4 h-64 rounded-xl"></div>
+
+              <div class="mt-4 text-xs text-silver/70">
+                Adresse : 196 boulevard Voltaire, 75011 Paris • Tél : 07 49 61
+                58 26
+              </div>
             </div>
 
-            <!-- 3D canvas -->
-            <canvas id="hero-canvas" aria-label="Serrure 3D interactive" role="img"></canvas>
-            <div class="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#0F0F0F]"></div>
-        </section>
+            <!-- Ajouter ces liens CDN pour Leaflet dans l'en-tête -->
+            <link
+              rel="stylesheet"
+              href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+              integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+              crossorigin=""
+            />
+            <script
+              src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+              integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+              crossorigin=""
+            ></script>
 
-        <!-- Services -->
-        <section id="services" class="py-20">
-            <div class="max-w-7xl mx-auto px-4">
-                <h2 class="text-3xl md:text-4xl font-bold text-white">Services</h2>
-                <p class="mt-2 text-silver/80">Transparence, rapidité et précision — au juste prix.</p>
-                <div class="mt-10 grid md:grid-cols-3 gap-6">
-                    <article class="glass p-6 rounded-2xl">
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-xl font-semibold text-white">Dépannage d'urgence 7j/7</h3>
-                            <div class="text-xs text-silver/70">Intervention rapide</div>
-                        </div>
-                        <p class="mt-3 text-sm text-silver/80">Ouverture de porte, clé cassée, serrure bloquée — intervention rapide à Paris 11e.</p>
-                        <a href="tel:+33749615826" class="mt-6 btn-metal btn-urgent w-full inline-block text-center">Appeler maintenant</a>
-                    </article>
-                    <article class="glass p-6 rounded-2xl">
-                        <h3 class="text-xl font-semibold text-white">Serrurerie & Métallerie</h3>
-                        <p class="mt-3 text-sm text-silver/80">Pose et réparation de serrures, blindages, cylindres — conseils personnalisés.</p>
-                    </article>
-                    <article class="glass p-6 rounded-2xl">
-                        <h3 class="text-xl font-semibold text-white">Reproduction de clés</h3>
-                        <p class="mt-3 text-sm text-silver/80">Toutes marques et modèles — taillage précis, contrôle qualité systématique.</p>
-                    </article>
-                </div>
-            </div>
-        </section>
+            <style>
+              /* Styles supplémentaires pour la carte */
+              #map {
+                z-index: 1;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+              }
+              .leaflet-container {
+                background: #1a1a2e;
+              }
+              .zone-intervention {
+                stroke: #b8860b;
+                stroke-width: 2;
+                fill: rgba(184, 134, 11, 0.1);
+              }
+            </style>
 
-        <!-- Expertise -->
-        <section id="expertise" class="py-24">
-            <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-8 items-start">
-                <div>
-                    <h2 class="text-3xl font-bold text-white">Storytelling — Le mécanisme expliqué</h2>
-                    <p class="mt-4 text-silver/80">Scrollez pour voir la serrure se transformer : du cadenas compact au cylindre haute sécurité, goupilles et mécanismes dévoilés pas à pas.</p>
-                    <ul class="mt-6 text-sm text-silver/70 space-y-2">
-                        <li>2019 — Eric ouvre l'atelier au 196 boulevard Voltaire (75011)</li>
-                        <li>Interventions rapides, diagnostic transparent et matériaux nobles</li>
-                        <li>Taillage de clés, blindages et métallerie sur mesure</li>
-                    </ul>
-                </div>
-                <div class="glass rounded-2xl p-6">
-                    <h3 class="text-white font-semibold">Horaires</h3>
-                    <ul class="mt-3 text-silver/80 text-sm">
-                        <li>Lundi–Jeudi : 08h30–19h00</li>
-                        <li>Vendredi : 08h30–15h00</li>
-                        <li>Samedi : Fermé</li>
-                        <li>Dimanche : 09h00–19h00</li>
-                    </ul>
-                    <div class="mt-4 text-xs text-silver/70">Adresse : 196 boulevard Voltaire, 75011 Paris • Tél : 07 49 61 58 26</div>
-                </div>
-            </div>
-        </section>
+            <script>
+              // Initialiser la carte après le chargement de la page
+              document.addEventListener("DOMContentLoaded", function () {
+                // Coordonnées de l'adresse (196 boulevard Voltaire, 75011 Paris)
+                const address = [48.8576, 2.37];
 
-        <!-- Testimonials -->
-        <section id="temoignages" class="py-20">
-            <div class="max-w-7xl mx-auto px-4">
-                <h2 class="text-3xl font-bold text-white">Ils nous font confiance</h2>
-                <div class="mt-8 grid md:grid-cols-3 gap-6">
-                    <div class="glass p-6 rounded-2xl">"Artisan honnête et très sympa..." — d.rizzonelli (11/07/2025)</div>
-                    <div class="glass p-6 rounded-2xl">"Excellent service, rapide et prix abordable" — edouard.debrousse (07/11/2024)</div>
-                    <div class="glass p-6 rounded-2xl">"Artisan serrurier souriant, passionné, efficace" — carole.rouah (10/08/2024)</div>
-                </div>
-            </div>
-        </section>
+                // Créer la carte
+                const map = L.map("map").setView(address, 14);
 
-        <!-- Contact -->
-        <section id="contact" class="py-20">
-            <div class="max-w-7xl mx-auto px-4">
-                <h2 class="text-3xl font-bold text-white">Contact & Localisation</h2>
-                <div class="mt-6 grid md:grid-cols-2 gap-8 items-start">
-                    <form class="glass p-6 rounded-2xl" id="contactForm">
-                        <h3 class="text-white font-semibold">Demande de devis</h3>
-                        <label class="block mt-3 text-sm">Nom
-                            <input required class="mt-1 w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2" type="text" name="nom" autocomplete="name">
-                        </label>
-                        <label class="block mt-3 text-sm">Téléphone
-                            <input required class="mt-1 w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2" type="tel" name="tel" autocomplete="tel">
-                        </label>
-                        <label class="block mt-3 text-sm">Message
-                            <textarea required class="mt-1 w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2" rows="4" name="msg"></textarea>
-                        </label>
-                        <div class="mt-4 flex gap-3">
-                            <button class="btn-metal">Envoyer</button>
-                            <a class="btn-metal btn-urgent" href="tel:+33749615826">Appeler</a>
-                        </div>
-                    </form>
-                    <div class="glass p-6 rounded-2xl">
-                        <h3 class="text-white font-semibold">Zone d'intervention</h3>
-                        <p class="text-silver/80 text-sm">Paris 11ᵉ — Intervention rapide autour du boulevard Voltaire.</p>
-                        <svg viewBox="0 0 600 360" class="mt-4 w-full h-auto rounded-xl bg-white/5" aria-hidden>
-                            <rect x="0" y="0" width="600" height="360" fill="transparent" stroke="rgba(255,255,255,0.08)"/>
-                            <g transform="translate(360,150)">
-                                <circle r="90" fill="none" stroke="rgba(255,255,255,0.12)"/>
-                                <circle r="50" fill="none" stroke="rgba(255,255,255,0.16)"/>
-                            </g>
-                            <g transform="translate(410,140)">
-                                <path d="M0,-22 C12,-22 22,-12 22,0 C22,16 0,36 0,36 C0,36 -22,16 -22,0 C-22,-12 -12,-22 0,-22 Z" fill="#DC143C" opacity="0.9"/>
-                                <circle cx="0" cy="0" r="6" fill="#FFD700"/>
-                            </g>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-        </section>
+                // Ajouter une couche de tuiles (fond de carte)
+                L.tileLayer(
+                  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                  {
+                    attribution:
+                      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                    className: "map-tiles",
+                  }
+                ).addTo(map);
 
-        <!-- Footer -->
-        <footer class="py-10 text-silver text-sm">
-            <div class="max-w-7xl mx-auto px-4">© <span id="year"></span> Artisan Serrurier Voltaire — SIRET & assurances disponibles sur demande.</div>
-        </footer>
+                // Ajouter un marqueur pour l'adresse
+                L.marker(address)
+                  .addTo(map)
+                  .bindPopup(
+                    "Artisan Serrurier Voltaire<br>196 bd Voltaire, 75011 Paris"
+                  )
+                  .openPopup();
+
+                // Dessiner un cercle pour la zone d'intervention (rayon de 1.5km)
+                L.circle(address, {
+                  color: "#b8860b",
+                  fillColor: "#b8860b33",
+                  fillOpacity: 0.3,
+                  radius: 1500,
+                }).addTo(map);
+              });
+            </script>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="py-10 text-silver text-sm">
+        <div class="max-w-7xl mx-auto px-4">
+          © <span id="year"></span> Artisan Serrurier Voltaire — SIRET &
+          assurances disponibles sur demande.
+        </div>
+      </footer>
     </main>
 
     <script>
-        // DOM Elements
-        const canvas = document.getElementById('hero-canvas');
-        const loaderEl = document.getElementById('loader');
-        const loaderMsg = document.getElementById('loaderMsg');
-        const progressBar = document.getElementById('progressBar');
-        const soundBtn = document.getElementById('soundBtn');
-        const dismissHint = document.getElementById('dismissHint');
-        const keyHint = document.getElementById('keyHint');
-        const contactForm = document.getElementById('contactForm');
-        
-        // Set current year in footer
-        document.getElementById('year').textContent = new Date().getFullYear();
-        
-        // Hide hint when dismissed
-        dismissHint.addEventListener('click', () => {
-            document.getElementById('hint').classList.add('hidden');
-            localStorage.setItem('hintDismissed', 'true');
-        });
-        
-        // Check if hint was previously dismissed
-        if (localStorage.getItem('hintDismissed') === 'true') {
-            document.getElementById('hint').classList.add('hidden');
+      // DOM Elements
+      const canvas = document.getElementById("hero-canvas");
+      const loaderEl = document.getElementById("loader");
+      const loaderMsg = document.getElementById("loaderMsg");
+      const progressBar = document.getElementById("progressBar");
+      const soundBtn = document.getElementById("soundBtn");
+      const dismissHint = document.getElementById("dismissHint");
+      const keyHint = document.getElementById("keyHint");
+      const contactForm = document.getElementById("contactForm");
+
+      // Set current year in footer
+      document.getElementById("year").textContent = new Date().getFullYear();
+
+      // Hide hint when dismissed
+      dismissHint.addEventListener("click", () => {
+        document.getElementById("hint").classList.add("hidden");
+        localStorage.setItem("hintDismissed", "true");
+      });
+
+      // Check if hint was previously dismissed
+      if (localStorage.getItem("hintDismissed") === "true") {
+        document.getElementById("hint").classList.add("hidden");
+      }
+
+      // Simulate loading progress
+      const loadingMessages = [
+        "Préparation des mécanismes",
+        "Chargement des textures",
+        "Initialisation 3D",
+        "Optimisation des performances",
+      ];
+
+      let loadStep = 0;
+      const loadInterval = setInterval(() => {
+        loadStep++;
+        const progress = Math.min(loadStep * 25, 100);
+        progressBar.style.width = `${progress}%`;
+        loaderMsg.textContent =
+          loadingMessages[loadStep % loadingMessages.length];
+
+        if (loadStep >= 4) {
+          clearInterval(loadInterval);
+          setTimeout(() => {
+            loaderEl.classList.add("hidden");
+            initScene(); // Initialize the 3D scene after loading
+          }, 800);
         }
-        
-        // Simulate loading progress
-        const loadingMessages = [
-            "Préparation des mécanismes",
-            "Chargement des textures",
-            "Initialisation 3D",
-            "Optimisation des performances"
-        ];
-        
-        let loadStep = 0;
-        const loadInterval = setInterval(() => {
-            loadStep++;
-            const progress = Math.min(loadStep * 25, 100);
-            progressBar.style.width = `${progress}%`;
-            loaderMsg.textContent = loadingMessages[loadStep % loadingMessages.length];
-            
-            if (loadStep >= 4) {
-                clearInterval(loadInterval);
-                setTimeout(() => {
-                    loaderEl.classList.add('hidden');
-                    initScene(); // Initialize the 3D scene after loading
-                }, 800);
-            }
-        }, 800);
-        
-        // Fallback: if loading takes more than 4.5 seconds, hide loader
-        setTimeout(() => {
-            clearInterval(loadInterval);
-            loaderEl.classList.add('hidden');
-            initScene(); // Initialize the 3D scene
-        }, 4500);
-        
-        // Form submission
-        contactForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Merci pour votre message! Nous vous contacterons rapidement.');
-            this.reset();
+      }, 800);
+
+      // Fallback: if loading takes more than 4.5 seconds, hide loader
+      setTimeout(() => {
+        clearInterval(loadInterval);
+        loaderEl.classList.add("hidden");
+        initScene(); // Initialize the 3D scene
+      }, 4500);
+
+      // Form submission
+      contactForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        alert("Merci pour votre message! Nous vous contacterons rapidement.");
+        this.reset();
+      });
+
+      // Initialize 3D scene
+      function initScene() {
+        // Scene setup
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0f172a);
+        scene.fog = new THREE.FogExp2(0x0f172a, 0.02);
+
+        // Camera setup
+        const camera = new THREE.PerspectiveCamera(
+          40,
+          canvas.clientWidth / canvas.clientHeight,
+          0.1,
+          200
+        );
+        camera.position.set(0, 0.8, 9);
+
+        // Renderer setup
+        const renderer = new THREE.WebGLRenderer({
+          canvas: canvas,
+          antialias: true,
+          alpha: true,
         });
-        
-        // Initialize 3D scene
-        function initScene() {
-            // Scene setup
-            const scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x0f172a);
-            scene.fog = new THREE.FogExp2(0x0f172a, 0.02);
-            
-            // Camera setup
-            const camera = new THREE.PerspectiveCamera(40, canvas.clientWidth / canvas.clientHeight, 0.1, 200);
-            camera.position.set(0, 0.8, 9);
-            
-            // Renderer setup
-            const renderer = new THREE.WebGLRenderer({
-                canvas: canvas,
-                antialias: true,
-                alpha: true
-            });
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-            renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-            
-            // Lights
-            const ambient = new THREE.AmbientLight(0xffffff, 0.45);
-            scene.add(ambient);
-            
-            const rim = new THREE.DirectionalLight(0x88aaff, 0.35);
-            rim.position.set(-6, 3, -2);
-            scene.add(rim);
-            
-            // Material helper
-            const metalMat = (color = 0xc0c0c0, rough = 0.2, metalness = 1) => {
-                return new THREE.MeshStandardMaterial({ 
-                    color, 
-                    roughness: rough, 
-                    metalness: metalness 
-                });
-            };
-            
-            // Lock assembly
-            const lockGroup = new THREE.Group();
-            scene.add(lockGroup);
-            
-            // Plate
-            const plate = new THREE.Mesh(
-                new THREE.BoxGeometry(6.2, 4.2, 0.18),
-                metalMat(0x2c3e50, 0.6)
-            );
-            plate.position.set(0, -0.2, -1.2);
-            lockGroup.add(plate);
-            
-            // Outer cylinder
-            const outer = new THREE.Mesh(
-                new THREE.CylinderGeometry(1.6, 1.6, 1.4, 64),
-                metalMat(0xc0c0c0, 0.18)
-            );
-            outer.rotation.x = Math.PI / 2;
-            lockGroup.add(outer);
-            
-            // Core cylinder
-            const core = new THREE.Mesh(
-                new THREE.CylinderGeometry(1.05, 1.05, 1.45, 64),
-                metalMat(0xb8860b, 0.18)
-            );
-            core.rotation.x = Math.PI / 2;
-            core.userData.homeZ = core.position.z;
-            lockGroup.add(core);
-            
-            // Pins
-            const pinsGroup = new THREE.Group();
-            for (let i = 0; i < 6; i++) {
-                const pin = new THREE.Mesh(
-                    new THREE.CylinderGeometry(0.06, 0.06, 0.9, 16),
-                    metalMat(0xffd700, 0.12)
-                );
-                pin.position.set(-0.9 + i * 0.36, 0.18, 0.25);
-                pin.userData.homeY = pin.position.y;
-                pin.userData.homeX = pin.position.x;
-                pin.userData.homeZ = pin.position.z;
-                pinsGroup.add(pin);
-            }
-            lockGroup.add(pinsGroup);
-            
-            // Key
-            function makeKey() {
-                const shape = new THREE.Shape();
-                shape.absellipse(-9, 0, 8, 8, 0, Math.PI * 2, false, 0);
-                shape.moveTo(-3, 2);
-                shape.lineTo(22, 2);
-                shape.lineTo(22, -6);
-                shape.lineTo(-3, -6);
-                shape.lineTo(-3, 2);
-                
-                const t1 = new THREE.Path();
-                t1.moveTo(8, -1);
-                t1.lineTo(12, -1);
-                t1.lineTo(12, -3);
-                t1.lineTo(8, -3);
-                t1.closePath();
-                
-                const t2 = new THREE.Path();
-                t2.moveTo(14, -1);
-                t2.lineTo(18, -1);
-                t2.lineTo(18, -4);
-                t2.lineTo(14, -4);
-                t2.closePath();
-                
-                const t3 = new THREE.Path();
-                t3.moveTo(4, -1);
-                t3.lineTo(6, -1);
-                t3.lineTo(6, -2.6);
-                t3.lineTo(4, -2.6);
-                t3.closePath();
-                
-                shape.holes.push(t1, t2, t3);
-                
-                const geom = new THREE.ExtrudeGeometry(shape, {
-                    depth: 0.7,
-                    bevelEnabled: false,
-                    steps: 1
-                });
-                
-                geom.scale(0.08, 0.08, 0.08);
-                
-                const mesh = new THREE.Mesh(geom, metalMat(0xc0c0c0, 0.12));
-                mesh.position.set(3.6, 0, 0);
-                mesh.rotation.y = 0.1;
-                
-                return mesh;
-            }
-            
-            const key = makeKey();
-            scene.add(key);
-            key.userData = {
-                targetX: 0,
-                targetY: 0,
-                isNearLock: false
-            };
-            
-            // Gears
-            function gear(radius, teeth, color) {
-                const g = new THREE.Group();
-                const tor = new THREE.Mesh(
-                    new THREE.TorusGeometry(radius, 0.16, 8, 64),
-                    metalMat(color, 0.4)
-                );
-                g.add(tor);
-                
-                const toothGeom = new THREE.BoxGeometry(0.12, 0.45, 0.25);
-                for (let i = 0; i < teeth; i++) {
-                    const t = new THREE.Mesh(toothGeom, metalMat(color, 0.4));
-                    const a = i * ((Math.PI * 2) / teeth);
-                    t.position.set(
-                        Math.cos(a) * (radius + 0.34),
-                        Math.sin(a) * (radius + 0.34),
-                        0
-                    );
-                    t.lookAt(0, 0, 0);
-                    g.add(t);
-                }
-                
-                return g;
-            }
-            
-            const gearL = gear(3.4, 20, 0x1a1a2e);
-            gearL.position.set(-5, -1.6, -1.5);
-            scene.add(gearL);
-            
-            const gearR = gear(2.0, 14, 0x0f0f0f);
-            gearR.position.set(5, 1.4, -1.2);
-            scene.add(gearR);
-            
-            // Particles
-            const pCount = 500;
-            const pGeo = new THREE.BufferGeometry();
-            const pos = new Float32Array(pCount * 3);
-            
-            for (let i = 0; i < pCount; i++) {
-                pos[i * 3] = (Math.random() - 0.5) * 12;
-                pos[i * 3 + 1] = (Math.random() - 0.5) * 6;
-                pos[i * 3 + 2] = -Math.random() * 3 - 0.2;
-            }
-            
-            pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-            
-            const pMat = new THREE.PointsMaterial({
-                size: 0.03,
-                sizeAttenuation: true,
-                color: 0xb8860b
-            });
-            
-            const particles = new THREE.Points(pGeo, pMat);
-            scene.add(particles);
-            
-            // Controls
-            const controls = new THREE.OrbitControls(camera, renderer.domElement);
-            controls.enablePan = false;
-            controls.enableZoom = false;
-            controls.autoRotate = true;
-            controls.autoRotateSpeed = 0.6;
-            
-            // Pointer handling
-            let pointer = { x: 0, y: 0 };
-            
-            window.addEventListener('pointermove', (e) => {
-                const rect = canvas.getBoundingClientRect();
-                pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-                pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-                
-                // Update key target position based on pointer
-                key.userData.targetX = pointer.x * 4;
-                key.userData.targetY = pointer.y * 2;
-                
-                // Check if key is near the lock
-                const distanceToLock = Math.sqrt(
-                    Math.pow(key.userData.targetX, 2) + 
-                    Math.pow(key.userData.targetY, 2)
-                );
-                
-                key.userData.isNearLock = distanceToLock < 1.5;
-                
-                // Show/hide key interaction hint
-                if (key.userData.isNearLock && !exploded) {
-                    keyHint.classList.add('visible');
-                } else {
-                    keyHint.classList.remove('visible');
-                }
-            });
-            
-            // Audio setup
-            let audioCtx = null;
-            let playClick = () => {};
-            let humGainNode = null;
-            
-            function initAudio() {
-                if (audioCtx) return;
-                
-                try {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    const master = audioCtx.createGain();
-                    master.gain.value = 0.9;
-                    master.connect(audioCtx.destination);
-                    
-                    // Ambient hum
-                    const hum = audioCtx.createOscillator();
-                    hum.type = 'sine';
-                    hum.frequency.value = 60;
-                    humGainNode = audioCtx.createGain();
-                    humGainNode.gain.value = 0.0008;
-                    hum.connect(humGainNode);
-                    humGainNode.connect(master);
-                    hum.start();
-                    
-                    // Click sound
-                    const clickOsc = audioCtx.createOscillator();
-                    clickOsc.type = 'square';
-                    clickOsc.frequency.value = 1200;
-                    const clickGain = audioCtx.createGain();
-                    clickGain.gain.value = 0;
-                    clickOsc.connect(clickGain);
-                    clickGain.connect(master);
-                    clickOsc.start();
-                    
-                    playClick = () => {
-                        const now = audioCtx.currentTime;
-                        clickGain.gain.cancelScheduledValues(now);
-                        clickGain.gain.setValueAtTime(0.0001, now);
-                        clickGain.gain.exponentialRampToValueAtTime(0.7, now + 0.006);
-                        clickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
-                    };
-                } catch (error) {
-                    console.warn('Audio context initialization failed:', error);
-                }
-            }
-            
-            // Sound toggle UI
-            let soundOn = true;
-            soundBtn.addEventListener('click', () => {
-                soundOn = !soundOn;
-                soundBtn.textContent = 'Son : ' + (soundOn ? 'ON' : 'OFF');
-                
-                if (soundOn && audioCtx && audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                } else if (soundOn) {
-                    initAudio();
-                }
-            });
-            
-            // Interaction: click to explode/assemble
-            let exploded = false;
-            
-            canvas.addEventListener('click', () => {
-                if (soundOn) {
-                    initAudio();
-                    playClick();
-                }
-                
-                exploded = !exploded;
-                
-                if (exploded) {
-                    // Explode the lock
-                    pinsGroup.children.forEach((p) => {
-                        gsap.to(p.position, {
-                            y: p.userData.homeY + 1.1 + Math.random() * 0.55,
-                            x: p.userData.homeX + (Math.random() - 0.5) * 0.6,
-                            z: p.userData.homeZ + (Math.random() - 0.5) * 0.6,
-                            duration: 1.2,
-                            ease: 'power2.out'
-                        });
-                    });
-                    
-                    gsap.to(core.position, {
-                        z: core.userData.homeZ + 2.5,
-                        duration: 1.2,
-                        ease: 'power2.out'
-                    });
-                    
-                    keyHint.classList.remove('visible');
-                } else {
-                    // Assemble the lock
-                    pinsGroup.children.forEach((p) => {
-                        gsap.to(p.position, {
-                            y: p.userData.homeY,
-                            x: p.userData.homeX,
-                            z: p.userData.homeZ,
-                            duration: 1.2,
-                            ease: 'power2.out'
-                        });
-                    });
-                    
-                    gsap.to(core.position, {
-                        z: core.userData.homeZ,
-                        duration: 1.2,
-                        ease: 'power2.out'
-                    });
-                }
-            });
-            
-            // Animation loop
-            function animate() {
-                requestAnimationFrame(animate);
-                
-                // Update controls
-                controls.update();
-                
-                // Animate key position smoothly
-                key.position.x += (key.userData.targetX - key.position.x) * 0.1;
-                key.position.y += (key.userData.targetY - key.position.y) * 0.1;
-                
-                // If key is near lock, align it
-                if (key.userData.isNearLock && !exploded) {
-                    key.rotation.y = THREE.MathUtils.lerp(key.rotation.y, 0, 0.1);
-                    key.position.z = THREE.MathUtils.lerp(key.position.z, 0, 0.1);
-                } else {
-                    key.rotation.y = THREE.MathUtils.lerp(key.rotation.y, 0.1, 0.1);
-                    key.position.z = THREE.MathUtils.lerp(key.position.z, 0, 0.1);
-                }
-                
-                // Animate gears
-                gearL.rotation.z += 0.002;
-                gearR.rotation.z -= 0.003;
-                
-                // Render scene
-                renderer.render(scene, camera);
-            }
-            
-            // Start animation
-            animate();
-            
-            // Handle window resize
-            function onWindowResize() {
-                camera.aspect = canvas.clientWidth / canvas.clientHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-            }
-            
-            window.addEventListener('resize', onWindowResize);
-            
-            // Scroll animations with GSAP
-            gsap.registerPlugin(ScrollTrigger);
-            
-            // Animate lock rotation on scroll
-            gsap.to(lockGroup.rotation, {
-                y: Math.PI * 2,
-                scrollTrigger: {
-                    trigger: '#expertise',
-                    start: 'top center',
-                    end: 'bottom center',
-                    scrub: true
-                }
-            });
-            
-            // Animate gears on scroll
-            gsap.to(gearL.rotation, {
-                z: Math.PI * 4,
-                scrollTrigger: {
-                    trigger: '#expertise',
-                    start: 'top bottom',
-                    end: 'bottom top',
-                    scrub: true
-                }
-            });
-            
-            gsap.to(gearR.rotation, {
-                z: -Math.PI * 6,
-                scrollTrigger: {
-                    trigger: '#expertise',
-                    start: 'top bottom',
-                    end: 'bottom top',
-                    scrub: true
-                }
-            });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+        renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+
+        // Lights
+        const ambient = new THREE.AmbientLight(0xffffff, 0.45);
+        scene.add(ambient);
+
+        const rim = new THREE.DirectionalLight(0x88aaff, 0.35);
+        rim.position.set(-6, 3, -2);
+        scene.add(rim);
+
+        // Material helper
+        const metalMat = (color = 0xc0c0c0, rough = 0.2, metalness = 1) => {
+          return new THREE.MeshStandardMaterial({
+            color,
+            roughness: rough,
+            metalness: metalness,
+          });
+        };
+
+        // Lock assembly
+        const lockGroup = new THREE.Group();
+        scene.add(lockGroup);
+
+        // Plate
+        const plate = new THREE.Mesh(
+          new THREE.BoxGeometry(6.2, 4.2, 0.18),
+          metalMat(0x2c3e50, 0.6)
+        );
+        plate.position.set(0, -0.2, -1.2);
+        lockGroup.add(plate);
+
+        // Outer cylinder
+        const outer = new THREE.Mesh(
+          new THREE.CylinderGeometry(1.6, 1.6, 1.4, 64),
+          metalMat(0xc0c0c0, 0.18)
+        );
+        outer.rotation.x = Math.PI / 2;
+        lockGroup.add(outer);
+
+        // Core cylinder
+        const core = new THREE.Mesh(
+          new THREE.CylinderGeometry(1.05, 1.05, 1.45, 64),
+          metalMat(0xb8860b, 0.18)
+        );
+        core.rotation.x = Math.PI / 2;
+        core.userData.homeZ = core.position.z;
+        lockGroup.add(core);
+
+        // Pins
+        const pinsGroup = new THREE.Group();
+        for (let i = 0; i < 6; i++) {
+          const pin = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.06, 0.06, 0.9, 16),
+            metalMat(0xffd700, 0.12)
+          );
+          pin.position.set(-0.9 + i * 0.36, 0.18, 0.25);
+          pin.userData.homeY = pin.position.y;
+          pin.userData.homeX = pin.position.x;
+          pin.userData.homeZ = pin.position.z;
+          pinsGroup.add(pin);
         }
+        lockGroup.add(pinsGroup);
+
+        // Key
+        function makeKey() {
+          const shape = new THREE.Shape();
+          shape.absellipse(-9, 0, 8, 8, 0, Math.PI * 2, false, 0);
+          shape.moveTo(-3, 2);
+          shape.lineTo(22, 2);
+          shape.lineTo(22, -6);
+          shape.lineTo(-3, -6);
+          shape.lineTo(-3, 2);
+
+          const t1 = new THREE.Path();
+          t1.moveTo(8, -1);
+          t1.lineTo(12, -1);
+          t1.lineTo(12, -3);
+          t1.lineTo(8, -3);
+          t1.closePath();
+
+          const t2 = new THREE.Path();
+          t2.moveTo(14, -1);
+          t2.lineTo(18, -1);
+          t2.lineTo(18, -4);
+          t2.lineTo(14, -4);
+          t2.closePath();
+
+          const t3 = new THREE.Path();
+          t3.moveTo(4, -1);
+          t3.lineTo(6, -1);
+          t3.lineTo(6, -2.6);
+          t3.lineTo(4, -2.6);
+          t3.closePath();
+
+          shape.holes.push(t1, t2, t3);
+
+          const geom = new THREE.ExtrudeGeometry(shape, {
+            depth: 0.7,
+            bevelEnabled: false,
+            steps: 1,
+          });
+
+          geom.scale(0.08, 0.08, 0.08);
+
+          const mesh = new THREE.Mesh(geom, metalMat(0xc0c0c0, 0.12));
+          mesh.position.set(3.6, 0, 0);
+          mesh.rotation.y = 0.1;
+
+          return mesh;
+        }
+
+        const key = makeKey();
+        scene.add(key);
+        key.userData = {
+          targetX: 0,
+          targetY: 0,
+          isNearLock: false,
+        };
+
+        // Gears
+        function gear(radius, teeth, color) {
+          const g = new THREE.Group();
+          const tor = new THREE.Mesh(
+            new THREE.TorusGeometry(radius, 0.16, 8, 64),
+            metalMat(color, 0.4)
+          );
+          g.add(tor);
+
+          const toothGeom = new THREE.BoxGeometry(0.12, 0.45, 0.25);
+          for (let i = 0; i < teeth; i++) {
+            const t = new THREE.Mesh(toothGeom, metalMat(color, 0.4));
+            const a = i * ((Math.PI * 2) / teeth);
+            t.position.set(
+              Math.cos(a) * (radius + 0.34),
+              Math.sin(a) * (radius + 0.34),
+              0
+            );
+            t.lookAt(0, 0, 0);
+            g.add(t);
+          }
+
+          return g;
+        }
+
+        const gearL = gear(3.4, 20, 0x1a1a2e);
+        gearL.position.set(-5, -1.6, -1.5);
+        scene.add(gearL);
+
+        const gearR = gear(2.0, 14, 0x0f0f0f);
+        gearR.position.set(5, 1.4, -1.2);
+        scene.add(gearR);
+
+        // Particles
+        const pCount = 500;
+        const pGeo = new THREE.BufferGeometry();
+        const pos = new Float32Array(pCount * 3);
+
+        for (let i = 0; i < pCount; i++) {
+          pos[i * 3] = (Math.random() - 0.5) * 12;
+          pos[i * 3 + 1] = (Math.random() - 0.5) * 6;
+          pos[i * 3 + 2] = -Math.random() * 3 - 0.2;
+        }
+
+        pGeo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+
+        const pMat = new THREE.PointsMaterial({
+          size: 0.03,
+          sizeAttenuation: true,
+          color: 0xb8860b,
+        });
+
+        const particles = new THREE.Points(pGeo, pMat);
+        scene.add(particles);
+
+        // Controls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enablePan = false;
+        controls.enableZoom = false;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.6;
+
+        // Pointer handling
+        let pointer = { x: 0, y: 0 };
+
+        window.addEventListener("pointermove", (e) => {
+          const rect = canvas.getBoundingClientRect();
+          pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+          pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+          // Update key target position based on pointer
+          key.userData.targetX = pointer.x * 4;
+          key.userData.targetY = pointer.y * 2;
+
+          // Check if key is near the lock
+          const distanceToLock = Math.sqrt(
+            Math.pow(key.userData.targetX, 2) +
+              Math.pow(key.userData.targetY, 2)
+          );
+
+          key.userData.isNearLock = distanceToLock < 1.5;
+
+          // Show/hide key interaction hint
+          if (key.userData.isNearLock && !exploded) {
+            keyHint.classList.add("visible");
+          } else {
+            keyHint.classList.remove("visible");
+          }
+        });
+
+        // Audio setup
+        let audioCtx = null;
+        let playClick = () => {};
+        let humGainNode = null;
+
+        function initAudio() {
+          if (audioCtx) return;
+
+          try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const master = audioCtx.createGain();
+            master.gain.value = 0.9;
+            master.connect(audioCtx.destination);
+
+            // Ambient hum
+            const hum = audioCtx.createOscillator();
+            hum.type = "sine";
+            hum.frequency.value = 60;
+            humGainNode = audioCtx.createGain();
+            humGainNode.gain.value = 0.0008;
+            hum.connect(humGainNode);
+            humGainNode.connect(master);
+            hum.start();
+
+            // Click sound
+            const clickOsc = audioCtx.createOscillator();
+            clickOsc.type = "square";
+            clickOsc.frequency.value = 1200;
+            const clickGain = audioCtx.createGain();
+            clickGain.gain.value = 0;
+            clickOsc.connect(clickGain);
+            clickGain.connect(master);
+            clickOsc.start();
+
+            playClick = () => {
+              const now = audioCtx.currentTime;
+              clickGain.gain.cancelScheduledValues(now);
+              clickGain.gain.setValueAtTime(0.0001, now);
+              clickGain.gain.exponentialRampToValueAtTime(0.7, now + 0.006);
+              clickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+            };
+          } catch (error) {
+            console.warn("Audio context initialization failed:", error);
+          }
+        }
+
+        // Sound toggle UI
+        let soundOn = true;
+        soundBtn.addEventListener("click", () => {
+          soundOn = !soundOn;
+          soundBtn.textContent = "Son : " + (soundOn ? "ON" : "OFF");
+
+          if (soundOn && audioCtx && audioCtx.state === "suspended") {
+            audioCtx.resume();
+          } else if (soundOn) {
+            initAudio();
+          }
+        });
+
+        // Interaction: click to explode/assemble
+        let exploded = false;
+
+        canvas.addEventListener("click", () => {
+          if (soundOn) {
+            initAudio();
+            playClick();
+          }
+
+          exploded = !exploded;
+
+          if (exploded) {
+            // Explode the lock
+            pinsGroup.children.forEach((p) => {
+              gsap.to(p.position, {
+                y: p.userData.homeY + 1.1 + Math.random() * 0.55,
+                x: p.userData.homeX + (Math.random() - 0.5) * 0.6,
+                z: p.userData.homeZ + (Math.random() - 0.5) * 0.6,
+                duration: 1.2,
+                ease: "power2.out",
+              });
+            });
+
+            gsap.to(core.position, {
+              z: core.userData.homeZ + 2.5,
+              duration: 1.2,
+              ease: "power2.out",
+            });
+
+            keyHint.classList.remove("visible");
+          } else {
+            // Assemble the lock
+            pinsGroup.children.forEach((p) => {
+              gsap.to(p.position, {
+                y: p.userData.homeY,
+                x: p.userData.homeX,
+                z: p.userData.homeZ,
+                duration: 1.2,
+                ease: "power2.out",
+              });
+            });
+
+            gsap.to(core.position, {
+              z: core.userData.homeZ,
+              duration: 1.2,
+              ease: "power2.out",
+            });
+          }
+        });
+
+        // Animation loop
+        function animate() {
+          requestAnimationFrame(animate);
+
+          // Update controls
+          controls.update();
+
+          // Animate key position smoothly
+          key.position.x += (key.userData.targetX - key.position.x) * 0.1;
+          key.position.y += (key.userData.targetY - key.position.y) * 0.1;
+
+          // If key is near lock, align it
+          if (key.userData.isNearLock && !exploded) {
+            key.rotation.y = THREE.MathUtils.lerp(key.rotation.y, 0, 0.1);
+            key.position.z = THREE.MathUtils.lerp(key.position.z, 0, 0.1);
+          } else {
+            key.rotation.y = THREE.MathUtils.lerp(key.rotation.y, 0.1, 0.1);
+            key.position.z = THREE.MathUtils.lerp(key.position.z, 0, 0.1);
+          }
+
+          // Animate gears
+          gearL.rotation.z += 0.002;
+          gearR.rotation.z -= 0.003;
+
+          // Render scene
+          renderer.render(scene, camera);
+        }
+
+        // Start animation
+        animate();
+
+        // Handle window resize
+        function onWindowResize() {
+          camera.aspect = canvas.clientWidth / canvas.clientHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+        }
+
+        window.addEventListener("resize", onWindowResize);
+
+        // Scroll animations with GSAP
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Animate lock rotation on scroll
+        gsap.to(lockGroup.rotation, {
+          y: Math.PI * 2,
+          scrollTrigger: {
+            trigger: "#expertise",
+            start: "top center",
+            end: "bottom center",
+            scrub: true,
+          },
+        });
+
+        // Animate gears on scroll
+        gsap.to(gearL.rotation, {
+          z: Math.PI * 4,
+          scrollTrigger: {
+            trigger: "#expertise",
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true,
+          },
+        });
+
+        gsap.to(gearR.rotation, {
+          z: -Math.PI * 6,
+          scrollTrigger: {
+            trigger: "#expertise",
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true,
+          },
+        });
+      }
     </script>
-</body>
+  </body>
 </html>
